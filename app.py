@@ -47,6 +47,13 @@ def get_datasets():
             'description': 'Clasificación de cultivares de vino (3 clases)',
             'samples': 178,
             'features': 13
+        },
+        {
+            'id': 'digits',
+            'name': 'Digits Dataset',
+            'description': 'Reconocimiento de dígitos escritos a mano (10 clases)',
+            'samples': 1797,
+            'features': 64
         }
     ]
     return jsonify(datasets)
@@ -69,6 +76,12 @@ def load_dataset(dataset_id):
             X = data.data
             y = data.target
             feature_names = data.feature_names
+        elif dataset_id == 'digits':
+            from sklearn.datasets import load_digits
+            data = load_digits()
+            X = data.data
+            y = data.target
+            feature_names = [f'pixel_{i}' for i in range(X.shape[1])]
         else:
             return jsonify({'error': 'Dataset no encontrado'}), 400
         

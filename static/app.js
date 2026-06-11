@@ -349,6 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Dataset buttons
     document.getElementById('loadIris').addEventListener('click', () => loadDataset('iris'));
     document.getElementById('loadWine').addEventListener('click', () => loadDataset('wine'));
+    document.getElementById('loadDigits').addEventListener('click', () => loadDataset('digits'));
     
     // CSV upload
     document.getElementById('uploadCSV').addEventListener('click', uploadCSV);

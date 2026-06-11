@@ -4,13 +4,13 @@ Aplicación web para entrenar, evaluar y usar modelos de clasificación basados 
 
 ## Características
 
-✅ Carga de datasets de ejemplo (Iris, Wine)  
-✅ Carga de archivos CSV personalizados  
-✅ Entrenamiento de modelos de regresión logística  
-✅ Evaluación con métricas de clasificación (Accuracy, Precision, Recall, F1)  
-✅ Matriz de confusión interactiva  
-✅ Predicciones en nuevos datos  
-✅ Visualización de coeficientes del modelo  
+Carga de datasets de ejemplo (Iris, Wine)  
+Carga de archivos CSV personalizados  
+Entrenamiento de modelos de regresión logística  
+Evaluación con métricas de clasificación (Accuracy, Precision, Recall, F1)  
+Matriz de confusión interactiva  
+Predicciones en nuevos datos  
+Visualización de coeficientes del modelo  
 
 ## Stack Tecnológico
 
@@ -38,8 +38,6 @@ proyecto-ml/
     └── app.js            # Lógica del frontend
 ```
 
-## Instalación Local
-
 ### 1. Clonar el repositorio
 ```bash
 git clone <tu-repo>
@@ -61,10 +59,6 @@ pip install -r requirements.txt
 ```bash
 python app.py
 ```
-
-La aplicación estará disponible en `http://localhost:5000`
-
-## Uso
 
 ### 1. Carga de Datos
 - Selecciona un dataset de ejemplo (Iris o Wine)
@@ -185,11 +179,6 @@ Retorna información del modelo entrenado
 ### Matriz de Confusión
 - Visualiza predicciones correctas e incorrectas por clase
 
-## Notas Importantes
-
-⚠️ **Video Coding Prohibido:**
-Este proyecto fue desarrollado usando Claude Code (herramientas IA con agentes), NO video coding.
-
 ✅ **Arquitectura:**
 - Backend desacoplado del frontend (API REST)
 - Fácil de entender y modificar
@@ -229,26 +218,13 @@ No actualmente. Para persistencia, usa `joblib` o `pickle`.
 **¿Funciona con multiclase?**
 Sí, scikit-learn maneja automáticamente OvR (One vs Rest).
 
-## Requisitos para la Sustentación
-
-Debes entender y poder explicar:
-
-1. ✅ Cómo se estructura el problema de clasificación
-2. ✅ Separación train/test y por qué es importante
-3. ✅ Cómo funciona regresión logística
-4. ✅ Interpretación de coeficientes
-5. ✅ Métricas de evaluación
-6. ✅ Cómo usar el modelo para predicciones
-7. ✅ Arquitectura de la aplicación
-8. ✅ Cómo se desplegó en la nube
-
 ## Licencia
 
 Este proyecto es para fines educativos.
 
 ---
 
-**Autor:** Tu Nombre  
+**Autor:** Gonzalo Andres Alipio Mojica, Carlos Alfonso Lopez Cervantes y Ioan De Jesus Bornachera Sanchez
 **Curso:** Inteligencia Artificial y Aprendizaje de Máquina  
 **Docente:** PhD Jorge Rudas  
 **Universidad:** Unicaribe
