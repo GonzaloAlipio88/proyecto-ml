@@ -185,17 +185,13 @@ Retorna información del modelo entrenado
 ### Matriz de Confusión
 - Visualiza predicciones correctas e incorrectas por clase
 
-## Notas Importantes
 
-⚠️ **Video Coding Prohibido:**
-Este proyecto fue desarrollado usando Claude Code (herramientas IA con agentes), NO video coding.
-
-✅ **Arquitectura:**
+**Arquitectura:**
 - Backend desacoplado del frontend (API REST)
 - Fácil de entender y modificar
 - Escalable para agregar más modelos
 
-🎓 **Aprendizaje:**
+**Aprendizaje:**
 Entender cada componente es clave para la sustentación. Lee el código y experimenta.
 
 ## Estructura de Respuestas API
