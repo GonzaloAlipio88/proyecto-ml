@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificador ML - Regresión Logística</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🤖 Clasificador de Regresión Logística</h1>
+            <p>Entrena, evalúa y predice con modelos de clasificación</p>
+        </header>
+
+        <main class="main-grid">
+            <!-- Panel Izquierdo: Carga de datos -->
+            <section class="panel">
+                <h2>1. Carga de Datos</h2>
+                
+                <div class="section">
+                    <h3>Datasets de Ejemplo</h3>
+                    <div class="dataset-buttons">
+                        <button class="btn btn-primary" id="loadIris">📊 Iris Dataset</button>
+                        <button class="btn btn-primary" id="loadWine">🍷 Wine Dataset</button>
+                    </div>
+                </div>
+
+                <div class="divider">o</div>
+
+                <div class="section">
+                    <h3>Cargar tu CSV</h3>
+                    <input type="file" id="csvFile" accept=".csv" class="file-input">
+                    <label>Columna Target (índice):</label>
+                    <input type="number" id="targetCol" value="-1" min="-1" class="input-field">
+                    <button class="btn btn-secondary" id="uploadCSV">Cargar CSV</button>
+                </div>
+
+                <div class="info-box" id="dataInfo" style="display: none;">
+                    <h4>📈 Información de Datos</h4>
+                    <p>Muestras: <strong id="samplesCount">-</strong></p>
+                    <p>Features: <strong id="featuresCount">-</strong></p>
+                    <p>Train/Test: <strong id="trainTestSplit">-</strong></p>
+                    <p>Clases: <strong id="classesCount">-</strong></p>
+                </div>
+            </section>
+
+            <!-- Panel Centro: Entrenamiento -->
+            <section class="panel">
+                <h2>2. Entrenar Modelo</h2>
+
+                <div class="section">
+                    <label>Max Iteraciones:</label>
+                    <input type="number" id="maxIter" value="1000" min="100" class="input-field">
+                    <button class="btn btn-success" id="trainBtn">🚀 Entrenar Modelo</button>
+                </div>
+
+                <div class="info-box" id="trainStatus" style="display: none;">
+                    <p id="trainMessage">-</p>
+                </div>
+
+                <div class="section">
+                    <h3>Información del Modelo</h3>
+                    <div id="modelInfo" style="display: none;">
+                        <p>Clases: <strong id="modelClasses">-</strong></p>
+                        <p>Features: <strong id="modelFeatures">-</strong></p>
+                        <div id="coefficientsDisplay"></div>
+                    </div>
+                    <p id="noModel" style="color: #999;">Entrena un modelo primero</p>
+                </div>
+            </section>
+
+            <!-- Panel Derecha: Evaluación y Predicción -->
+            <section class="panel">
+                <h2>3. Evaluar & Predecir</h2>
+
+                <div class="section">
+                    <h3>📊 Métricas de Evaluación</h3>
+                    <button class="btn btn-info" id="evaluateBtn">Evaluar Modelo</button>
+                    
+                    <div id="metricsDisplay" style="display: none;">
+                        <div class="metric">
+                            <label>Accuracy:</label>
+                            <div class="metric-value" id="accuracy">-</div>
+                        </div>
+                        <div class="metric">
+                            <label>Precision:</label>
+                            <div class="metric-value" id="precision">-</div>
+                        </div>
+                        <div class="metric">
+                            <label>Recall:</label>
+                            <div class="metric-value" id="recall">-</div>
+                        </div>
+                        <div class="metric">
+                            <label>F1-Score:</label>
+                            <div class="metric-value" id="f1score">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="section">
+                    <h3>🔮 Hacer Predicción</h3>
+                    <div id="predictionForm" style="display: none;">
+                        <div id="featuresInput"></div>
+                        <button class="btn btn-success" id="predictBtn">Predecir</button>
+                    </div>
+                    <div id="predictionResult" style="display: none;">
+                        <p>Predicción: <strong id="predictionClass">-</strong></p>
+                        <div id="probabilitiesDisplay"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Matriz de Confusión -->
+        <section class="panel full-width" id="confusionSection" style="display: none;">
+            <h2>Matriz de Confusión</h2>
+            <canvas id="confusionChart"></canvas>
+        </section>
+
+        <!-- Loading y Errores -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Procesando...</p>
+        </div>
+
+        <div id="errorBox" class="error-box" style="display: none;">
+            <p id="errorMessage"></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="static/app.js"></script>
+</body>
+</html>
