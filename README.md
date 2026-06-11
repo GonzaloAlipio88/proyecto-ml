@@ -179,12 +179,17 @@ Retorna información del modelo entrenado
 ### Matriz de Confusión
 - Visualiza predicciones correctas e incorrectas por clase
 
+<<<<<<< HEAD
 ✅ **Arquitectura:**
+=======
+
+**Arquitectura:**
+>>>>>>> 6d805d96cd5b15d21be1ec122fc8bdda1ca7dcf2
 - Backend desacoplado del frontend (API REST)
 - Fácil de entender y modificar
 - Escalable para agregar más modelos
 
-🎓 **Aprendizaje:**
+**Aprendizaje:**
 Entender cada componente es clave para la sustentación. Lee el código y experimenta.
 
 ## Estructura de Respuestas API
@@ -218,13 +223,21 @@ No actualmente. Para persistencia, usa `joblib` o `pickle`.
 **¿Funciona con multiclase?**
 Sí, scikit-learn maneja automáticamente OvR (One vs Rest).
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6d805d96cd5b15d21be1ec122fc8bdda1ca7dcf2
 ## Licencia
 
 Este proyecto es para fines educativos.
 
 ---
 
+<<<<<<< HEAD
 **Autor:** Gonzalo Andres Alipio Mojica, Carlos Alfonso Lopez Cervantes y Ioan De Jesus Bornachera Sanchez
+=======
+**Autor:** Gonzalo Alipio, Carlos López y Ioan De Jesus
+>>>>>>> 6d805d96cd5b15d21be1ec122fc8bdda1ca7dcf2
 **Curso:** Inteligencia Artificial y Aprendizaje de Máquina  
 **Docente:** PhD Jorge Rudas  
 **Universidad:** Unicaribe
