@@ -4,13 +4,13 @@ Aplicación web para entrenar, evaluar y usar modelos de clasificación basados 
 
 ## Características
 
-✅ Carga de datasets de ejemplo (Iris, Wine)  
-✅ Carga de archivos CSV personalizados  
-✅ Entrenamiento de modelos de regresión logística  
-✅ Evaluación con métricas de clasificación (Accuracy, Precision, Recall, F1)  
-✅ Matriz de confusión interactiva  
-✅ Predicciones en nuevos datos  
-✅ Visualización de coeficientes del modelo  
+Carga de datasets de ejemplo (Iris, Wine)  
+Carga de archivos CSV personalizados  
+Entrenamiento de modelos de regresión logística  
+Evaluación con métricas de clasificación (Accuracy, Precision, Recall, F1)  
+Matriz de confusión interactiva  
+Predicciones en nuevos datos  
+Visualización de coeficientes del modelo  
 
 ## Stack Tecnológico
 
@@ -229,18 +229,6 @@ No actualmente. Para persistencia, usa `joblib` o `pickle`.
 **¿Funciona con multiclase?**
 Sí, scikit-learn maneja automáticamente OvR (One vs Rest).
 
-## Requisitos para la Sustentación
-
-Debes entender y poder explicar:
-
-1. ✅ Cómo se estructura el problema de clasificación
-2. ✅ Separación train/test y por qué es importante
-3. ✅ Cómo funciona regresión logística
-4. ✅ Interpretación de coeficientes
-5. ✅ Métricas de evaluación
-6. ✅ Cómo usar el modelo para predicciones
-7. ✅ Arquitectura de la aplicación
-8. ✅ Cómo se desplegó en la nube
 
 ## Licencia
 
@@ -248,7 +236,7 @@ Este proyecto es para fines educativos.
 
 ---
 
-**Autor:** Tu Nombre  
+**Autor:** Gonzalo Alipio, Carlos López y Ioan De Jesus
 **Curso:** Inteligencia Artificial y Aprendizaje de Máquina  
 **Docente:** PhD Jorge Rudas  
 **Universidad:** Unicaribe
