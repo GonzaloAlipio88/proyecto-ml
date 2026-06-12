@@ -114,7 +114,7 @@ async function trainModel() {
         
         document.getElementById('trainStatus').style.display = 'block';
         document.getElementById('trainMessage').textContent = 
-            `✅ Modelo entrenado. Accuracy en train: ${(data.training_metrics.accuracy * 100).toFixed(2)}%`;
+            `Modelo entrenado. Accuracy en train: ${(data.training_metrics.accuracy * 100).toFixed(2)}%`;
         
         // Cargar información del modelo
         await loadModelInfo();
