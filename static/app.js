@@ -206,56 +206,54 @@ function displayMetrics(metrics) {
 }
 
 // Mostrar matriz de confusión
-let confusionChart = null;
-
 function displayConfusionMatrix(matrix, classes) {
     document.getElementById('confusionSection').style.display = 'block';
-    
-    const ctx = document.getElementById('confusionChart').getContext('2d');
-    
-    if (confusionChart) {
-        confusionChart.destroy();
-    }
-    
-    const data = {
-        labels: classes.map(c => `Clase ${c}`),
-        datasets: classes.map((c, idx) => ({
-            label: `Predicha ${c}`,
-            data: matrix[idx],
-            backgroundColor: `rgba(${37 + idx * 30}, ${99 + idx * 20}, 235, 0.7)`,
-            borderColor: `rgba(37, 99, 235, 1)`,
-            borderWidth: 2
-        }))
-    };
-    
-    confusionChart = new Chart(ctx, {
-        type: 'bar',
-        data: data,
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Matriz de Confusión',
-                    color: '#e2e8f0'
-                },
-                legend: {
-                    labels: { color: '#e2e8f0' }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: { color: '#e2e8f0' },
-                    grid: { color: 'rgba(148, 163, 184, 0.1)' }
-                },
-                y: {
-                    ticks: { color: '#e2e8f0' },
-                    grid: { color: 'rgba(148, 163, 184, 0.1)' },
-                    beginAtZero: true
-                }
-            }
-        }
+
+    const container = document.getElementById('confusionChart');
+    container.innerHTML = '';
+
+    const maxVal = Math.max(...matrix.flat());
+
+    const table = document.createElement('div');
+    table.className = 'cm-wrapper';
+
+    classes.forEach((actual, i) => {
+        const row = document.createElement('div');
+        row.className = 'cm-row';
+
+        const label = document.createElement('div');
+        label.className = 'cm-cell cm-label';
+        label.textContent = `Clase ${actual}`;
+        row.appendChild(label);
+
+        classes.forEach((predicted, j) => {
+            const val = matrix[i][j];
+            const intensity = maxVal > 0 ? val / maxVal : 0;
+
+            const cell = document.createElement('div');
+            cell.className = 'cm-cell cm-value';
+            cell.textContent = val;
+
+            const hue = 250;
+            const light = 92 - intensity * 55;
+            cell.style.background = `hsl(${hue}, 65%, ${light}%)`;
+            cell.style.color = intensity > 0.5 ? '#fff' : '#2d3436';
+            cell.style.fontWeight = intensity > 0.7 ? '700' : '500';
+
+            row.appendChild(cell);
+        });
+
+        table.appendChild(row);
     });
+
+    const header = document.createElement('div');
+    header.className = 'cm-header-bar';
+    const predLabel = document.createElement('span');
+    predLabel.textContent = 'Predicha →';
+    header.appendChild(predLabel);
+    table.insertBefore(header, table.firstChild);
+
+    container.appendChild(table);
 }
 
 // Mostrar formulario de predicción
