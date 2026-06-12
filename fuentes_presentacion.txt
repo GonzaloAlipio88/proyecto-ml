@@ -1,0 +1,62 @@
+PROYECTO FINAL - CLASIFICADOR DE REGRESIÓN LOGÍSTICA
+====================================================
+Curso: Inteligencia Artificial y Aprendizaje De Máquina
+Docente: PhD Jorge Rudas
+Universidad: Unicaribe
+
+DESCRIPCIÓN GENERAL
+Aplicación web que permite cargar datasets, entrenar un modelo de regresión logística, evaluar su desempeño y realizar predicciones sobre nuevos datos.
+
+STACK TECNOLÓGICO
+Backend: Flask (Python), scikit-learn, pandas, numpy, gunicorn
+Frontend: HTML5, CSS3, JavaScript vanilla, Chart.js
+Despliegue: Render (cloud)
+
+FUNCIONALIDADES
+1. Carga de datos: datasets de ejemplo (Iris, Wine, Digits) o CSV propio
+2. Entrenamiento: regresión logística con normalización StandardScaler
+3. Evaluación: accuracy, precision, recall, F1-score, matriz de confusión
+4. Predicción: ingreso de features y visualización de probabilidades por clase
+5. Visualización: coeficientes del modelo, matriz de confusión interactiva
+
+ARQUITECTURA
+Backend (app.py): API REST con Flask, 7 endpoints
+- GET /api/datasets - lista datasets disponibles
+- POST /api/load-dataset/<id> - carga dataset de ejemplo
+- POST /api/upload-csv - carga CSV personalizado
+- POST /api/train - entrena modelo
+- GET /api/evaluate - evalúa en test set
+- POST /api/predict - predice nuevos datos
+- GET /api/model-info - información del modelo entrenado
+Frontend (static/app.js): JavaScript vanilla con fetch API, Chart.js para gráficos
+
+FASES DEL PROYECTO
+1. Carga de datos: separación 80/20 train/test con stratify
+2. Preprocesamiento: normalización con StandardScaler (media=0, varianza=1)
+3. Entrenamiento: regresión logística multinomial con descenso de gradiente
+4. Evaluación: métricas de clasificación en test set
+5. Predicción: forward pass sobre datos nuevos
+
+CONCEPTOS CLAVE
+- Regresión logística: usa función sigmoidea para probabilidades, extendida a multiclase con softmax
+- Separación train/test: 80% entrenamiento, 20% prueba, estratificada
+- Normalización: evita que features con escalas grandes dominen el modelo
+- Coeficientes: indican la importancia/contribución de cada feature
+- Accuracy: proporción de predicciones correctas
+- Precision: TP/(TP+FP)
+- Recall: TP/(TP+FN)
+- F1-Score: media armónica de precision y recall
+- Matriz de confusión: visualiza aciertos y errores por clase
+
+DATASETS DISPONIBLES
+1. Iris (150 muestras, 4 features, 3 clases) - clasificación de flores
+2. Wine (178 muestras, 13 features, 3 clases) - clasificación de vinos
+3. Digits (1797 muestras, 64 features, 10 clases) - reconocimiento de dígitos escritos a mano
+
+HERRAMIENTAS IA UTILIZADAS
+- OpenCode: generación y corrección de código
+- NotebookLM: generación de presentación
+
+REPOSITORIO
+https://github.com/GonzaloAlipio88/proyecto-ml
+URL pública: https://proyecto-ml-o7ki.onrender.com/
