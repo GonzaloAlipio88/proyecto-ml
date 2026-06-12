@@ -1,67 +1,67 @@
-// Estado
-let appState = {
+// estado de la app
+let estadoApp = {
     dataLoaded: false,
     modelTrained: false,
-    featureNames: [],
-    featureCount: 0
+    nombresFeatures: [],
+    cantidadFeatures: 0
 };
 
-// Funciones auxiliares
-const showLoading = () => document.getElementById('loading').style.display = 'flex';
-const hideLoading = () => document.getElementById('loading').style.display = 'none';
+// funciones auxiliares
+const mostrarLoading = () => document.getElementById('loading').style.display = 'flex';
+const ocultarLoading = () => document.getElementById('loading').style.display = 'none';
 
-const showError = (message) => {
+function mostrarError(mensaje) {
     const errorBox = document.getElementById('errorBox');
-    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorMessage').textContent = mensaje;
     errorBox.style.display = 'block';
     setTimeout(() => errorBox.style.display = 'none', 5000);
-};
+}
 
-const showSuccess = (message) => {
-    console.log(message);
-};
+function mostrarSuccess(mensaje) {
+    console.log(mensaje);
+}
 
-const API_BASE = '/api';
+const API_URL = '/api';
 
-// Cargar dataset de ejemplo
+// cargar dataset de ejemplo
 async function loadDataset(datasetId) {
-    showLoading();
+    mostrarLoading();
     try {
-        const response = await fetch(`${API_BASE}/load-dataset/${datasetId}`, {
+        const response = await fetch(`${API_URL}/load-dataset/${datasetId}`, {
             method: 'POST'
         });
         const data = await response.json();
         
         if (!response.ok) throw new Error(data.error);
         
-        appState.dataLoaded = true;
-        appState.featureNames = data.data_info.feature_names;
-        appState.featureCount = data.data_info.features;
+        estadoApp.dataLoaded = true;
+        estadoApp.nombresFeatures = data.data_info.feature_names;
+        estadoApp.cantidadFeatures = data.data_info.features;
         
-        updateDataInfo(data.data_info);
-        showSuccess(`Dataset ${datasetId} cargado`);
+        actualizarInfo(data.data_info);
+        mostrarSuccess(`Dataset ${datasetId} cargado`);
     } catch (error) {
-        showError(error.message);
-    } finally {
-        hideLoading();
+        mostrarError(error.message);
     }
+    
+    ocultarLoading();
 }
 
-// Subir CSV
+// subir csv
 async function uploadCSV() {
     const file = document.getElementById('csvFile').files[0];
     if (!file) {
-        showError('Selecciona un archivo CSV');
+        mostrarError('Selecciona un archivo CSV');
         return;
     }
     
-    showLoading();
+    mostrarLoading();
     try {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('target_column', document.getElementById('targetCol').value);
         
-        const response = await fetch(`${API_BASE}/upload-csv`, {
+        const response = await fetch(`${API_URL}/upload-csv`, {
             method: 'POST',
             body: formData
         });
@@ -69,39 +69,39 @@ async function uploadCSV() {
         
         if (!response.ok) throw new Error(data.error);
         
-        appState.dataLoaded = true;
-        appState.featureNames = data.data_info.feature_names;
-        appState.featureCount = data.data_info.features;
+        estadoApp.dataLoaded = true;
+        estadoApp.nombresFeatures = data.data_info.feature_names;
+        estadoApp.cantidadFeatures = data.data_info.features;
         
-        updateDataInfo(data.data_info);
-        showSuccess('CSV cargado correctamente');
+        actualizarInfo(data.data_info);
+        mostrarSuccess('CSV cargado correctamente');
     } catch (error) {
-        showError(error.message);
-    } finally {
-        hideLoading();
+        mostrarError(error.message);
     }
+    
+    ocultarLoading();
 }
 
-// Actualizar información de datos
-function updateDataInfo(info) {
+// actualizar info
+function actualizarInfo(info) {
     document.getElementById('dataInfo').style.display = 'block';
     document.getElementById('samplesCount').textContent = info.samples;
     document.getElementById('featuresCount').textContent = info.features;
-    document.getElementById('trainTestSplit').textContent = `${info.train_size} / ${info.test_size}`;
+    document.getElementById('trainTestSplit').textContent = info.train_size + ' / ' + info.test_size;
     document.getElementById('classesCount').textContent = info.classes;
 }
 
-// Entrenar modelo
+// entrenar modelo
 async function trainModel() {
-    if (!appState.dataLoaded) {
-        showError('Carga datos primero');
+    if (!estadoApp.dataLoaded) {
+        mostrarError('Carga datos primero');
         return;
     }
     
-    showLoading();
+    mostrarLoading();
     try {
         const maxIter = document.getElementById('maxIter').value;
-        const response = await fetch(`${API_BASE}/train`, {
+        const response = await fetch(`${API_URL}/train`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ max_iter: parseInt(maxIter) })
@@ -110,30 +110,30 @@ async function trainModel() {
         
         if (!response.ok) throw new Error(data.error);
         
-        appState.modelTrained = true;
+        estadoApp.modelTrained = true;
         
         document.getElementById('trainStatus').style.display = 'block';
         document.getElementById('trainMessage').textContent = 
-            `Modelo entrenado. Accuracy en train: ${(data.training_metrics.accuracy * 100).toFixed(2)}%`;
+            'Modelo entrenado. Accuracy en train: ' + (data.training_metrics.accuracy * 100).toFixed(2) + '%';
         
-        // Cargar info del modelo
-        await loadModelInfo();
+        // cargar info del modelo entrenado
+        await cargarInfoModelo();
         
-        // Mostrar formulario de predicción
-        showPredictionForm();
+        // mostrar formulario
+        mostrarFormularioPrediccion();
         
-        showSuccess('Modelo entrenado exitosamente');
+        mostrarSuccess('Modelo entrenado exitosamente');
     } catch (error) {
-        showError(error.message);
-    } finally {
-        hideLoading();
+        mostrarError(error.message);
     }
+    
+    ocultarLoading();
 }
 
-// Cargar info del modelo
-async function loadModelInfo() {
+// cargar info del modelo
+async function cargarInfoModelo() {
     try {
-        const response = await fetch(`${API_BASE}/model-info`);
+        const response = await fetch(`${API_URL}/model-info`);
         const data = await response.json();
         
         if (!response.ok) throw new Error(data.error);
@@ -144,59 +144,60 @@ async function loadModelInfo() {
         document.getElementById('modelClasses').textContent = info.classes.join(', ');
         document.getElementById('modelFeatures').textContent = info.n_features;
         
-        // Mostrar coeficientes
+        // mostrar coeficientes
         displayCoefficients(info.feature_names, info.coefficients);
     } catch (error) {
-        console.error('Error loading model info:', error);
+        console.error('Error al cargar info del modelo:', error);
     }
 }
 
-// Mostrar coeficientes
-function displayCoefficients(featureNames, coefficients) {
+// mostrar coeficientes
+function displayCoefficients(nombres, coeficientes) {
     const display = document.getElementById('coefficientsDisplay');
     display.innerHTML = '<strong>Coeficientes del Modelo:</strong>';
     
-    coefficients.forEach((coef, idx) => {
-        const feature = featureNames[idx] || `Característica ${idx}`;
+    for (let idx = 0; idx < coeficientes.length; idx++) {
+        const coef = coeficientes[idx];
+        const feature = nombres[idx] || 'Caracteristica ' + idx;
         const values = Array.isArray(coef) ? coef : [coef];
         
-        values.forEach((val, i) => {
+        for (let i = 0; i < values.length; i++) {
+            const val = values[i];
             const item = document.createElement('div');
             item.className = 'coeff-item';
-            item.innerHTML = `
-                <span class="coeff-name">${feature} (Clase ${i})</span>
-                <span class="coeff-value">${parseFloat(val).toFixed(4)}</span>
-            `;
+            item.innerHTML = 
+                '<span class="coeff-name">' + feature + ' (Clase ' + i + ')</span>' +
+                '<span class="coeff-value">' + parseFloat(val).toFixed(4) + '</span>';
             display.appendChild(item);
-        });
-    });
+        }
+    }
 }
 
-// Evaluar modelo
+// evaluar modelo
 async function evaluateModel() {
-    if (!appState.modelTrained) {
-        showError('Entrena un modelo primero');
+    if (!estadoApp.modelTrained) {
+        mostrarError('Entrena un modelo primero');
         return;
     }
     
-    showLoading();
+    mostrarLoading();
     try {
-        const response = await fetch(`${API_BASE}/evaluate`);
+        const response = await fetch(`${API_URL}/evaluate`);
         const data = await response.json();
         
         if (!response.ok) throw new Error(data.error);
         
         displayMetrics(data.metrics);
-        displayConfusionMatrix(data.confusion_matrix, data.classes);
-        showSuccess('Modelo evaluado');
+        mostrarMatrizConfusion(data.confusion_matrix, data.classes);
+        mostrarSuccess('Modelo evaluado');
     } catch (error) {
-        showError(error.message);
-    } finally {
-        hideLoading();
+        mostrarError(error.message);
     }
+    
+    ocultarLoading();
 }
 
-// Mostrar métricas
+// mostrar metricas
 function displayMetrics(metrics) {
     document.getElementById('metricsDisplay').style.display = 'block';
     document.getElementById('accuracy').textContent = (metrics.accuracy * 100).toFixed(2) + '%';
@@ -205,159 +206,148 @@ function displayMetrics(metrics) {
     document.getElementById('f1score').textContent = (metrics.f1_score * 100).toFixed(2) + '%';
 }
 
-// Mostrar matriz de confusión
-function displayConfusionMatrix(matrix, classes) {
+// mostrar matriz de confusion como heatmap
+function mostrarMatrizConfusion(matrix, classes) {
     document.getElementById('confusionSection').style.display = 'block';
 
     const container = document.getElementById('confusionChart');
     container.innerHTML = '';
 
-    const maxVal = Math.max(...matrix.flat());
+    var maxVal = 0;
+    for (var i = 0; i < matrix.length; i++) {
+        for (var j = 0; j < matrix[i].length; j++) {
+            if (matrix[i][j] > maxVal) maxVal = matrix[i][j];
+        }
+    }
 
-    const table = document.createElement('div');
-    table.className = 'cm-wrapper';
+    const tabla = document.createElement('div');
+    tabla.className = 'cm-wrapper';
 
-    classes.forEach((actual, i) => {
-        const row = document.createElement('div');
-        row.className = 'cm-row';
+    for (var i = 0; i < classes.length; i++) {
+        const fila = document.createElement('div');
+        fila.className = 'cm-row';
 
         const label = document.createElement('div');
         label.className = 'cm-cell cm-label';
-        label.textContent = `Clase ${actual}`;
-        row.appendChild(label);
+        label.textContent = 'Clase ' + classes[i];
+        fila.appendChild(label);
 
-        classes.forEach((predicted, j) => {
+        for (var j = 0; j < classes.length; j++) {
             const val = matrix[i][j];
-            const intensity = maxVal > 0 ? val / maxVal : 0;
+            const intensidad = maxVal > 0 ? val / maxVal : 0;
 
-            const cell = document.createElement('div');
-            cell.className = 'cm-cell cm-value';
-            cell.textContent = val;
+            const celda = document.createElement('div');
+            celda.className = 'cm-cell cm-value';
+            celda.textContent = val;
 
-            const hue = 250;
-            const light = 92 - intensity * 55;
-            cell.style.background = `hsl(${hue}, 65%, ${light}%)`;
-            cell.style.color = intensity > 0.5 ? '#fff' : '#2d3436';
-            cell.style.fontWeight = intensity > 0.7 ? '700' : '500';
+            const luz = 92 - intensidad * 55;
+            celda.style.background = 'hsl(250, 65%, ' + luz + '%)';
+            celda.style.color = intensidad > 0.5 ? '#fff' : '#2d3436';
+            celda.style.fontWeight = intensidad > 0.7 ? '700' : '500';
 
-            row.appendChild(cell);
-        });
+            fila.appendChild(celda);
+        }
 
-        table.appendChild(row);
-    });
+        tabla.appendChild(fila);
+    }
 
     const header = document.createElement('div');
     header.className = 'cm-header-bar';
-    const predLabel = document.createElement('span');
-    predLabel.textContent = 'Predicha →';
-    header.appendChild(predLabel);
-    table.insertBefore(header, table.firstChild);
+    header.textContent = 'Predicha →';
+    tabla.insertBefore(header, tabla.firstChild);
 
-    container.appendChild(table);
+    container.appendChild(tabla);
 }
 
-// Mostrar formulario de predicción
-function showPredictionForm() {
-    const form = document.getElementById('predictionForm');
-    form.style.display = 'block';
+// mostrar formulario de prediccion
+function mostrarFormularioPrediccion() {
+    document.getElementById('predictionForm').style.display = 'block';
     
     const inputDiv = document.getElementById('featuresInput');
     inputDiv.innerHTML = '';
     
-    appState.featureNames.forEach((name, idx) => {
+    for (var i = 0; i < estadoApp.nombresFeatures.length; i++) {
         const group = document.createElement('div');
         group.className = 'feature-input-group';
-        group.innerHTML = `
-            <label>${name}</label>
-            <input 
-                type="number" 
-                id="feature${idx}" 
-                placeholder="0.0" 
-                step="0.01"
-                class="input-field"
-            >
-        `;
+        group.innerHTML = 
+            '<label>' + estadoApp.nombresFeatures[i] + '</label>' +
+            '<input type="number" id="feature' + i + '" placeholder="0.0" step="0.01" class="input-field">';
         inputDiv.appendChild(group);
-    });
+    }
 }
 
-// Hacer predicción
+// hacer prediccion
 async function makePrediction() {
-    if (!appState.modelTrained) {
-        showError('Entrena un modelo primero');
+    if (!estadoApp.modelTrained) {
+        mostrarError('Entrena un modelo primero');
         return;
     }
     
     const features = [];
-    for (let i = 0; i < appState.featureCount; i++) {
-        const val = parseFloat(document.getElementById(`feature${i}`).value);
+    for (var i = 0; i < estadoApp.cantidadFeatures; i++) {
+        const val = parseFloat(document.getElementById('feature' + i).value);
         if (isNaN(val)) {
-            showError(`Valor inválido en feature ${i}`);
+            mostrarError('Valor invalido en feature ' + i);
             return;
         }
         features.push(val);
     }
     
-    showLoading();
+    mostrarLoading();
     try {
-        const response = await fetch(`${API_BASE}/predict`, {
+        const response = await fetch(`${API_URL}/predict`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ features })
+            body: JSON.stringify({ features: features })
         });
         const data = await response.json();
         
         if (!response.ok) throw new Error(data.error);
         
-        displayPrediction(data.prediction, data.probabilities, data.classes);
-        showSuccess('Predicción realizada');
+        mostrarPrediccion(data.prediction, data.probabilities, data.classes);
+        mostrarSuccess('Prediccion realizada');
     } catch (error) {
-        showError(error.message);
-    } finally {
-        hideLoading();
+        mostrarError(error.message);
     }
+    
+    ocultarLoading();
 }
 
-// Mostrar predicción
-function displayPrediction(prediction, probabilities, classes) {
+// mostrar prediccion
+function mostrarPrediccion(prediction, probabilities, classes) {
     document.getElementById('predictionResult').style.display = 'block';
     document.getElementById('predictionClass').textContent = prediction;
     
     const probDisplay = document.getElementById('probabilitiesDisplay');
     probDisplay.innerHTML = '<strong>Probabilidades por Clase:</strong>';
     
-    probabilities.forEach((prob, idx) => {
+    for (var i = 0; i < probabilities.length; i++) {
+        const prob = probabilities[i];
         const percentage = (prob * 100).toFixed(2);
         const bar = document.createElement('div');
         bar.className = 'probability-bar';
-        bar.innerHTML = `
-            <label>Clase ${classes[idx]}</label>
-            <div class="bar-container">
-                <div class="bar-fill" style="width: ${percentage}%">
-                    ${percentage}%
-                </div>
-            </div>
-        `;
+        bar.innerHTML = 
+            '<label>Clase ' + classes[i] + '</label>' +
+            '<div class="bar-container">' +
+                '<div class="bar-fill" style="width: ' + percentage + '%">' +
+                    percentage + '%' +
+                '</div>' +
+            '</div>';
         probDisplay.appendChild(bar);
-    });
+    }
 }
 
-// Listeners de eventos
-document.addEventListener('DOMContentLoaded', () => {
-    // Dataset buttons
-    document.getElementById('loadIris').addEventListener('click', () => loadDataset('iris'));
-    document.getElementById('loadWine').addEventListener('click', () => loadDataset('wine'));
-    document.getElementById('loadDigits').addEventListener('click', () => loadDataset('digits'));
+// listeners de eventos
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('loadIris').addEventListener('click', function() { loadDataset('iris'); });
+    document.getElementById('loadWine').addEventListener('click', function() { loadDataset('wine'); });
+    document.getElementById('loadDigits').addEventListener('click', function() { loadDataset('digits'); });
     
-    // CSV upload
     document.getElementById('uploadCSV').addEventListener('click', uploadCSV);
     
-    // Train
     document.getElementById('trainBtn').addEventListener('click', trainModel);
     
-    // Evaluate
     document.getElementById('evaluateBtn').addEventListener('click', evaluateModel);
     
-    // Predict
     document.getElementById('predictBtn').addEventListener('click', makePrediction);
 });
