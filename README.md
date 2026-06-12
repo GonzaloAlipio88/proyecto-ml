@@ -23,21 +23,6 @@ Visualización de coeficientes del modelo
 - HTML5, CSS3, JavaScript (Vanilla)
 - Chart.js (Visualizaciones)
 
-## Estructura del Proyecto
-
-```
-proyecto-ml/
-├── app.py                 # Backend Flask
-├── requirements.txt       # Dependencias Python
-├── Procfile              # Configuración para deploy
-├── .gitignore
-├── templates/
-│   └── index.html        # Frontend (HTML)
-└── static/
-    ├── style.css         # Estilos CSS
-    └── app.js            # Lógica del frontend
-```
-
 ### 1. Clonar el repositorio
 ```bash
 git clone <tu-repo>
@@ -96,37 +81,12 @@ python app.py
    ```
 
 3. **En Render.com:**
-   - Ve a https://render.com
+   - Vamos a https://render.com
    - Conecta tu GitHub
    - Crea nuevo Web Service
    - Rama: main
    - Build command: `pip install -r requirements.txt`
    - Start command: `gunicorn app:app`
-
-### Opción 2: Railway (También gratis con GitHub)
-
-1. Ve a https://railway.app
-2. Conecta tu repositorio GitHub
-3. Railway detectará Flask automáticamente
-4. Deploy automático
-
-### Opción 3: Heroku (requiere tarjeta)
-
-1. **Instalar Heroku CLI**
-2. **Login:**
-   ```bash
-   heroku login
-   ```
-
-3. **Crear app:**
-   ```bash
-   heroku create tu-app-name
-   ```
-
-4. **Deploy:**
-   ```bash
-   git push heroku main
-   ```
 
 ## API Endpoints
 
@@ -180,7 +140,7 @@ Retorna información del modelo entrenado
 - Visualiza predicciones correctas e incorrectas por clase
 
 <<<<<<< HEAD
-✅ **Arquitectura:**
+**Arquitectura:**
 =======
 
 **Arquitectura:**
@@ -239,5 +199,5 @@ Este proyecto es para fines educativos.
 **Autor:** Gonzalo Alipio, Carlos López y Ioan De Jesus
 >>>>>>> 6d805d96cd5b15d21be1ec122fc8bdda1ca7dcf2
 **Curso:** Inteligencia Artificial y Aprendizaje de Máquina  
-**Docente:** PhD Jorge Rudas  
+**Docente:** Jorge Rudas  
 **Universidad:** Unicaribe
