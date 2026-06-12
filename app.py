@@ -4,10 +4,11 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
-    confusion_matrix, classification_report
+    confusion_matrix, classification_report,
+    mean_squared_error, mean_absolute_error, r2_score
 )
 import io
 import os
@@ -166,33 +167,56 @@ def train_model():
         
         data = request.get_json()
         max_iter = data.get('max_iter', 1000)
+        model_type = data.get('model_type', 'logistic')
         
         # normalizar datos
         scaler = StandardScaler()
         X_train_scaled = scaler.fit_transform(X_train)
         
-        # entrenar modelo
-        modelo = LogisticRegression(
-            max_iter=max_iter,
-            random_state=42,
-            multi_class='multinomial'
-        )
-        modelo.fit(X_train_scaled, y_train)
-        modelo_entrenado = True
-        
-        # evaluar en training
-        y_pred_train = modelo.predict(X_train_scaled)
-        train_accuracy = accuracy_score(y_train, y_pred_train)
-        
-        return jsonify({
-            'success': True,
-            'message': 'Modelo entrenado correctamente',
-            'training_metrics': {
-                'accuracy': float(train_accuracy),
-                'samples': len(X_train),
-                'features': X_train.shape[1]
-            }
-        })
+        # entrenar modelo segun tipo
+        if model_type == 'linear':
+            modelo = LinearRegression()
+            modelo.fit(X_train_scaled, y_train)
+            modelo_entrenado = True
+            
+            # evaluar en training
+            y_pred_train = modelo.predict(X_train_scaled)
+            train_mse = mean_squared_error(y_train, y_pred_train)
+            
+            return jsonify({
+                'success': True,
+                'message': 'Modelo lineal entrenado correctamente',
+                'model_type': 'linear',
+                'training_metrics': {
+                    'mse': float(train_mse),
+                    'rmse': float(np.sqrt(train_mse)),
+                    'samples': len(X_train),
+                    'features': X_train.shape[1]
+                }
+            })
+        else:
+            modelo = LogisticRegression(
+                max_iter=max_iter,
+                random_state=42,
+                multi_class='multinomial'
+            )
+            modelo.fit(X_train_scaled, y_train)
+            modelo_entrenado = True
+            
+            # evaluar en training
+            y_pred_train = modelo.predict(X_train_scaled)
+            train_accuracy = accuracy_score(y_train, y_pred_train)
+            
+            return jsonify({
+                'success': True,
+                'message': 'Modelo entrenado correctamente',
+                'model_type': 'logistic',
+                'training_metrics': {
+                    'accuracy': float(train_accuracy),
+                    'samples': len(X_train),
+                    'features': X_train.shape[1]
+                }
+            })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -208,31 +232,57 @@ def evaluate_model():
         X_test_scaled = scaler.transform(X_test)
         y_pred = modelo.predict(X_test_scaled)
         
-        # calcular metricas
-        accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred, average='weighted', zero_division=0)
-        recall = recall_score(y_test, y_pred, average='weighted', zero_division=0)
-        f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
+        # detectar si es regresion lineal
+        es_lineal = isinstance(modelo, LinearRegression)
         
-        # matriz de confusion
-        cm = confusion_matrix(y_test, y_pred)
-        
-        # reporte
-        report = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
-        
-        return jsonify({
-            'success': True,
-            'metrics': {
-                'accuracy': float(accuracy),
-                'precision': float(precision),
-                'recall': float(recall),
-                'f1_score': float(f1),
-                'test_samples': len(y_test)
-            },
-            'confusion_matrix': cm.tolist(),
-            'classes': [int(c) for c in np.unique(y_test)],
-            'report': report
-        })
+        if es_lineal:
+            # metricas de regresion
+            mse = mean_squared_error(y_test, y_pred)
+            rmse = np.sqrt(mse)
+            mae = mean_absolute_error(y_test, y_pred)
+            r2 = r2_score(y_test, y_pred)
+            
+            # si es clasificacion, redondear para calcular accuracy
+            y_pred_rounded = np.round(y_pred).astype(int)
+            y_test_int = y_test.astype(int) if hasattr(y_test, 'astype') else y_test
+            acc = accuracy_score(y_test_int, y_pred_rounded) if len(np.unique(y_test)) < 20 else 0
+            
+            return jsonify({
+                'success': True,
+                'model_type': 'linear',
+                'metrics': {
+                    'mse': float(mse),
+                    'rmse': float(rmse),
+                    'mae': float(mae),
+                    'r2': float(r2),
+                    'accuracy': float(acc),
+                    'test_samples': len(y_test)
+                }
+            })
+        else:
+            # metricas de clasificacion
+            accuracy = accuracy_score(y_test, y_pred)
+            precision = precision_score(y_test, y_pred, average='weighted', zero_division=0)
+            recall = recall_score(y_test, y_pred, average='weighted', zero_division=0)
+            f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
+            
+            cm = confusion_matrix(y_test, y_pred)
+            report = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
+            
+            return jsonify({
+                'success': True,
+                'model_type': 'logistic',
+                'metrics': {
+                    'accuracy': float(accuracy),
+                    'precision': float(precision),
+                    'recall': float(recall),
+                    'f1_score': float(f1),
+                    'test_samples': len(y_test)
+                },
+                'confusion_matrix': cm.tolist(),
+                'classes': [int(c) for c in np.unique(y_test)],
+                'report': report
+            })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -251,14 +301,24 @@ def predict():
         # normalizar y predecir
         input_scaled = scaler.transform(input_data)
         prediction = modelo.predict(input_scaled)[0]
-        probabilities = modelo.predict_proba(input_scaled)[0]
         
-        return jsonify({
-            'success': True,
-            'prediction': int(prediction),
-            'probabilities': probabilities.tolist(),
-            'classes': modelo.classes_.tolist()
-        })
+        es_lineal = isinstance(modelo, LinearRegression)
+        
+        if es_lineal:
+            return jsonify({
+                'success': True,
+                'prediction': float(round(prediction, 4)),
+                'probabilities': None,
+                'classes': None
+            })
+        else:
+            probabilities = modelo.predict_proba(input_scaled)[0]
+            return jsonify({
+                'success': True,
+                'prediction': int(prediction),
+                'probabilities': probabilities.tolist(),
+                'classes': modelo.classes_.tolist()
+            })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -275,17 +335,33 @@ def get_model_info():
         coef = modelo.coef_
         intercept = modelo.intercept_
         
-        return jsonify({
-            'success': True,
-            'model_info': {
-                'trained': modelo_entrenado,
-                'classes': modelo.classes_.tolist(),
-                'n_features': modelo.n_features_in_,
-                'feature_names': nombres_features,
-                'coefficients': coef.tolist(),
-                'intercept': intercept.tolist()
-            }
-        })
+        es_lineal = isinstance(modelo, LinearRegression)
+        if es_lineal:
+            # LinearRegression devuelve coef_ 1D
+            coef_list = coef.tolist() if hasattr(coef, 'tolist') else coef
+            return jsonify({
+                'success': True,
+                'model_info': {
+                    'trained': modelo_entrenado,
+                    'classes': None,
+                    'n_features': modelo.n_features_in_,
+                    'feature_names': nombres_features,
+                    'coefficients': coef_list if isinstance(coef_list, list) else [coef_list],
+                    'intercept': [float(intercept)]
+                }
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'model_info': {
+                    'trained': modelo_entrenado,
+                    'classes': modelo.classes_.tolist(),
+                    'n_features': modelo.n_features_in_,
+                    'feature_names': nombres_features,
+                    'coefficients': coef.tolist(),
+                    'intercept': intercept.tolist()
+                }
+            })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

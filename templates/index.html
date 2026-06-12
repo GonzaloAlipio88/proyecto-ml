@@ -52,6 +52,11 @@
                 <h2>2. Entrenar Modelo</h2>
 
                 <div class="section">
+                    <label>Tipo de Modelo:</label>
+                    <select id="modelType" class="input-field">
+                        <option value="logistic">Regresion Logistica</option>
+                        <option value="linear">Regresion Lineal</option>
+                    </select>
                     <label>Max Iteraciones:</label>
                     <input type="number" id="maxIter" value="1000" min="100" class="input-field">
                     <button class="btn btn-success" id="trainBtn">Entrenar Modelo</button>
@@ -81,21 +86,41 @@
                     <button class="btn btn-info" id="evaluateBtn">Evaluar Modelo</button>
                     
                     <div id="metricsDisplay" style="display: none;">
-                        <div class="metric">
-                            <label>Accuracy:</label>
-                            <div class="metric-value" id="accuracy">-</div>
+                        <div id="classMetrics">
+                            <div class="metric">
+                                <label>Accuracy:</label>
+                                <div class="metric-value" id="accuracy">-</div>
+                            </div>
+                            <div class="metric">
+                                <label>Precision:</label>
+                                <div class="metric-value" id="precision">-</div>
+                            </div>
+                            <div class="metric">
+                                <label>Recall:</label>
+                                <div class="metric-value" id="recall">-</div>
+                            </div>
+                            <div class="metric">
+                                <label>F1-Score:</label>
+                                <div class="metric-value" id="f1score">-</div>
+                            </div>
                         </div>
-                        <div class="metric">
-                            <label>Precision:</label>
-                            <div class="metric-value" id="precision">-</div>
-                        </div>
-                        <div class="metric">
-                            <label>Recall:</label>
-                            <div class="metric-value" id="recall">-</div>
-                        </div>
-                        <div class="metric">
-                            <label>F1-Score:</label>
-                            <div class="metric-value" id="f1score">-</div>
+                        <div id="regMetrics" style="display: none;">
+                            <div class="metric">
+                                <label>Error Cuadratico Medio (MSE):</label>
+                                <div class="metric-value" id="mse">-</div>
+                            </div>
+                            <div class="metric">
+                                <label>Raiz ECM (RMSE):</label>
+                                <div class="metric-value" id="rmse">-</div>
+                            </div>
+                            <div class="metric">
+                                <label>Error Absoluto Medio (MAE):</label>
+                                <div class="metric-value" id="mae">-</div>
+                            </div>
+                            <div class="metric">
+                                <label>R² Score:</label>
+                                <div class="metric-value" id="r2">-</div>
+                            </div>
                         </div>
                     </div>
                 </div>

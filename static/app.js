@@ -3,7 +3,8 @@ let estadoApp = {
     dataLoaded: false,
     modelTrained: false,
     nombresFeatures: [],
-    cantidadFeatures: 0
+    cantidadFeatures: 0,
+    tipoModelo: 'logistic'
 };
 
 // funciones auxiliares
@@ -101,10 +102,16 @@ async function trainModel() {
     mostrarLoading();
     try {
         const maxIter = document.getElementById('maxIter').value;
+        const modelType = document.getElementById('modelType').value;
+        estadoApp.tipoModelo = modelType;
+        
         const response = await fetch(`${API_URL}/train`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ max_iter: parseInt(maxIter) })
+            body: JSON.stringify({ 
+                max_iter: parseInt(maxIter),
+                model_type: modelType
+            })
         });
         const data = await response.json();
         
@@ -113,8 +120,15 @@ async function trainModel() {
         estadoApp.modelTrained = true;
         
         document.getElementById('trainStatus').style.display = 'block';
-        document.getElementById('trainMessage').textContent = 
-            'Modelo entrenado. Accuracy en train: ' + (data.training_metrics.accuracy * 100).toFixed(2) + '%';
+        
+        if (modelType === 'linear') {
+            document.getElementById('trainMessage').textContent = 
+                'Modelo lineal entrenado. MSE: ' + data.training_metrics.mse.toFixed(4) + 
+                ', RMSE: ' + data.training_metrics.rmse.toFixed(4);
+        } else {
+            document.getElementById('trainMessage').textContent = 
+                'Modelo entrenado. Accuracy en train: ' + (data.training_metrics.accuracy * 100).toFixed(2) + '%';
+        }
         
         // cargar info del modelo entrenado
         await cargarInfoModelo();
@@ -141,7 +155,7 @@ async function cargarInfoModelo() {
         const info = data.model_info;
         document.getElementById('modelInfo').style.display = 'block';
         document.getElementById('noModel').style.display = 'none';
-        document.getElementById('modelClasses').textContent = info.classes.join(', ');
+        document.getElementById('modelClasses').textContent = info.classes ? info.classes.join(', ') : 'N/A (regresion)';
         document.getElementById('modelFeatures').textContent = info.n_features;
         
         // mostrar coeficientes
@@ -159,15 +173,22 @@ function displayCoefficients(nombres, coeficientes) {
     for (let idx = 0; idx < coeficientes.length; idx++) {
         const coef = coeficientes[idx];
         const feature = nombres[idx] || 'Caracteristica ' + idx;
-        const values = Array.isArray(coef) ? coef : [coef];
         
-        for (let i = 0; i < values.length; i++) {
-            const val = values[i];
+        if (Array.isArray(coef)) {
+            for (let i = 0; i < coef.length; i++) {
+                const item = document.createElement('div');
+                item.className = 'coeff-item';
+                item.innerHTML = 
+                    '<span class="coeff-name">' + feature + ' (Clase ' + i + ')</span>' +
+                    '<span class="coeff-value">' + parseFloat(coef[i]).toFixed(4) + '</span>';
+                display.appendChild(item);
+            }
+        } else {
             const item = document.createElement('div');
             item.className = 'coeff-item';
             item.innerHTML = 
-                '<span class="coeff-name">' + feature + ' (Clase ' + i + ')</span>' +
-                '<span class="coeff-value">' + parseFloat(val).toFixed(4) + '</span>';
+                '<span class="coeff-name">' + feature + '</span>' +
+                '<span class="coeff-value">' + parseFloat(coef).toFixed(4) + '</span>';
             display.appendChild(item);
         }
     }
@@ -187,8 +208,14 @@ async function evaluateModel() {
         
         if (!response.ok) throw new Error(data.error);
         
-        displayMetrics(data.metrics);
-        mostrarMatrizConfusion(data.confusion_matrix, data.classes);
+        if (data.model_type === 'linear') {
+            mostrarMetricasRegresion(data.metrics);
+            document.getElementById('confusionSection').style.display = 'none';
+        } else {
+            displayMetrics(data.metrics);
+            mostrarMatrizConfusion(data.confusion_matrix, data.classes);
+        }
+        
         mostrarSuccess('Modelo evaluado');
     } catch (error) {
         mostrarError(error.message);
@@ -197,13 +224,26 @@ async function evaluateModel() {
     ocultarLoading();
 }
 
-// mostrar metricas
+// mostrar metricas de clasificacion
 function displayMetrics(metrics) {
     document.getElementById('metricsDisplay').style.display = 'block';
+    document.getElementById('classMetrics').style.display = 'block';
+    document.getElementById('regMetrics').style.display = 'none';
     document.getElementById('accuracy').textContent = (metrics.accuracy * 100).toFixed(2) + '%';
     document.getElementById('precision').textContent = (metrics.precision * 100).toFixed(2) + '%';
     document.getElementById('recall').textContent = (metrics.recall * 100).toFixed(2) + '%';
     document.getElementById('f1score').textContent = (metrics.f1_score * 100).toFixed(2) + '%';
+}
+
+// mostrar metricas de regresion
+function mostrarMetricasRegresion(metrics) {
+    document.getElementById('metricsDisplay').style.display = 'block';
+    document.getElementById('classMetrics').style.display = 'none';
+    document.getElementById('regMetrics').style.display = 'block';
+    document.getElementById('mse').textContent = metrics.mse.toFixed(4);
+    document.getElementById('rmse').textContent = metrics.rmse.toFixed(4);
+    document.getElementById('mae').textContent = metrics.mae.toFixed(4);
+    document.getElementById('r2').textContent = metrics.r2.toFixed(4);
 }
 
 // mostrar matriz de confusion como heatmap
@@ -319,21 +359,25 @@ function mostrarPrediccion(prediction, probabilities, classes) {
     document.getElementById('predictionClass').textContent = prediction;
     
     const probDisplay = document.getElementById('probabilitiesDisplay');
-    probDisplay.innerHTML = '<strong>Probabilidades por Clase:</strong>';
     
-    for (var i = 0; i < probabilities.length; i++) {
-        const prob = probabilities[i];
-        const percentage = (prob * 100).toFixed(2);
-        const bar = document.createElement('div');
-        bar.className = 'probability-bar';
-        bar.innerHTML = 
-            '<label>Clase ' + classes[i] + '</label>' +
-            '<div class="bar-container">' +
-                '<div class="bar-fill" style="width: ' + percentage + '%">' +
-                    percentage + '%' +
-                '</div>' +
-            '</div>';
-        probDisplay.appendChild(bar);
+    if (probabilities && classes) {
+        probDisplay.innerHTML = '<strong>Probabilidades por Clase:</strong>';
+        for (var i = 0; i < probabilities.length; i++) {
+            const prob = probabilities[i];
+            const percentage = (prob * 100).toFixed(2);
+            const bar = document.createElement('div');
+            bar.className = 'probability-bar';
+            bar.innerHTML = 
+                '<label>Clase ' + classes[i] + '</label>' +
+                '<div class="bar-container">' +
+                    '<div class="bar-fill" style="width: ' + percentage + '%">' +
+                        percentage + '%' +
+                    '</div>' +
+                '</div>';
+            probDisplay.appendChild(bar);
+        }
+    } else {
+        probDisplay.innerHTML = '';
     }
 }
 
