@@ -41,6 +41,16 @@ async function loadDataset(datasetId) {
         
         actualizarInfo(data.data_info);
         mostrarSuccess(`Dataset ${datasetId} cargado`);
+        
+        // resetear UI del modelo
+        document.getElementById('modelInfo').style.display = 'none';
+        document.getElementById('noModel').style.display = 'block';
+        document.getElementById('trainStatus').style.display = 'none';
+        document.getElementById('predictionForm').style.display = 'none';
+        document.getElementById('predictionResult').style.display = 'none';
+        document.getElementById('metricsDisplay').style.display = 'none';
+        document.getElementById('confusionSection').style.display = 'none';
+        estadoApp.modelTrained = false;
     } catch (error) {
         mostrarError(error.message);
     }
@@ -394,4 +404,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('evaluateBtn').addEventListener('click', evaluateModel);
     
     document.getElementById('predictBtn').addEventListener('click', makePrediction);
+    
+    // cargar iris por defecto al iniciar
+    loadDataset('iris');
 });
