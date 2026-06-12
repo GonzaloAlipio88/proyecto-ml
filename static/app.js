@@ -256,7 +256,7 @@ function mostrarMetricasRegresion(metrics) {
     document.getElementById('r2').textContent = metrics.r2.toFixed(4);
 }
 
-// mostrar matriz de confusion como heatmap
+// mostrar matriz de confusion
 function mostrarMatrizConfusion(matrix, classes) {
     document.getElementById('confusionSection').style.display = 'block';
 
@@ -270,41 +270,118 @@ function mostrarMatrizConfusion(matrix, classes) {
         }
     }
 
+    var total = 0;
+    for (var i = 0; i < matrix.length; i++) {
+        for (var j = 0; j < matrix[i].length; j++) {
+            total += matrix[i][j];
+        }
+    }
+
     const tabla = document.createElement('div');
     tabla.className = 'cm-wrapper';
 
+    // header de columnas
+    var headerRow = document.createElement('div');
+    headerRow.className = 'cm-row';
+    var corner1 = document.createElement('div');
+    corner1.className = 'cm-cell cm-corner';
+    headerRow.appendChild(corner1);
+    var corner2 = document.createElement('div');
+    corner2.className = 'cm-cell cm-corner';
+    corner2.textContent = 'Actual ↓ / Predicha →';
+    corner2.style.fontSize = '0.7em';
+    corner2.style.color = '#636e72';
+    corner2.style.fontWeight = '500';
+    corner2.style.width = 'auto';
+    corner2.style.padding = '0 8px';
+    headerRow.appendChild(corner2);
+    for (var j = 0; j < classes.length; j++) {
+        var hcell = document.createElement('div');
+        hcell.className = 'cm-cell cm-header';
+        hcell.textContent = classes[j];
+        headerRow.appendChild(hcell);
+    }
+    tabla.appendChild(headerRow);
+
+    // filas de datos
     for (var i = 0; i < classes.length; i++) {
-        const fila = document.createElement('div');
+        var fila = document.createElement('div');
         fila.className = 'cm-row';
 
-        const label = document.createElement('div');
+        var label = document.createElement('div');
         label.className = 'cm-cell cm-label';
-        label.textContent = 'Clase ' + classes[i];
+        label.textContent = classes[i];
         fila.appendChild(label);
 
+        var spacer = document.createElement('div');
+        spacer.className = 'cm-cell cm-spacerH';
+        fila.appendChild(spacer);
+
+        var sumaFila = 0;
         for (var j = 0; j < classes.length; j++) {
-            const val = matrix[i][j];
-            const intensidad = maxVal > 0 ? val / maxVal : 0;
+            sumaFila += matrix[i][j];
+        }
 
-            const celda = document.createElement('div');
+        for (var j = 0; j < classes.length; j++) {
+            var val = matrix[i][j];
+            var intensidad = maxVal > 0 ? val / maxVal : 0;
+            var pct = total > 0 ? ((val / total) * 100) : 0;
+
+            var celda = document.createElement('div');
             celda.className = 'cm-cell cm-value';
-            celda.textContent = val;
+            celda.innerHTML = val + '<span class="cm-pct">' + pct.toFixed(1) + '%</span>';
 
-            const luz = 92 - intensidad * 55;
+            var luz = 92 - intensidad * 55;
             celda.style.background = 'hsl(250, 65%, ' + luz + '%)';
             celda.style.color = intensidad > 0.5 ? '#fff' : '#2d3436';
             celda.style.fontWeight = intensidad > 0.7 ? '700' : '500';
 
+            if (i === j) {
+                celda.style.border = '2px solid ' + (intensidad > 0.5 ? 'rgba(255,255,255,0.4)' : 'rgba(108,92,231,0.3)');
+            }
+
             fila.appendChild(celda);
         }
+
+        var pctFila = sumaFila / total * 100;
+        var totalCelda = document.createElement('div');
+        totalCelda.className = 'cm-cell cm-total';
+        totalCelda.textContent = sumaFila;
+        fila.appendChild(totalCelda);
 
         tabla.appendChild(fila);
     }
 
-    const header = document.createElement('div');
-    header.className = 'cm-header-bar';
-    header.textContent = 'Predicha →';
-    tabla.insertBefore(header, tabla.firstChild);
+    // footer
+    var footerRow = document.createElement('div');
+    footerRow.className = 'cm-row';
+    var fcorner = document.createElement('div');
+    fcorner.className = 'cm-cell cm-corner';
+    footerRow.appendChild(fcorner);
+    var ftotal = document.createElement('div');
+    ftotal.className = 'cm-cell cm-corner';
+    ftotal.textContent = 'Total';
+    ftotal.style.fontSize = '0.7em';
+    ftotal.style.color = '#636e72';
+    ftotal.style.fontWeight = '500';
+    ftotal.style.width = 'auto';
+    ftotal.style.padding = '0 8px';
+    footerRow.appendChild(ftotal);
+    for (var j = 0; j < classes.length; j++) {
+        var sumaCol = 0;
+        for (var i = 0; i < classes.length; i++) {
+            sumaCol += matrix[i][j];
+        }
+        var fcell = document.createElement('div');
+        fcell.className = 'cm-cell cm-total';
+        fcell.textContent = sumaCol;
+        footerRow.appendChild(fcell);
+    }
+    var totTotal = document.createElement('div');
+    totTotal.className = 'cm-cell cm-total cm-total-all';
+    totTotal.textContent = total;
+    footerRow.appendChild(totTotal);
+    tabla.appendChild(footerRow);
 
     container.appendChild(tabla);
 }
