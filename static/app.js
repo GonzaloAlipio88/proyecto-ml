@@ -1,4 +1,4 @@
-// State
+// Estado
 let appState = {
     dataLoaded: false,
     modelTrained: false,
@@ -6,7 +6,7 @@ let appState = {
     featureCount: 0
 };
 
-// Helper Functions
+// Funciones auxiliares
 const showLoading = () => document.getElementById('loading').style.display = 'flex';
 const hideLoading = () => document.getElementById('loading').style.display = 'none';
 
@@ -18,12 +18,12 @@ const showError = (message) => {
 };
 
 const showSuccess = (message) => {
-    console.log('✅', message);
+    console.log(message);
 };
 
 const API_BASE = '/api';
 
-// Load Dataset from Example
+// Cargar dataset de ejemplo
 async function loadDataset(datasetId) {
     showLoading();
     try {
@@ -47,7 +47,7 @@ async function loadDataset(datasetId) {
     }
 }
 
-// Upload CSV
+// Subir CSV
 async function uploadCSV() {
     const file = document.getElementById('csvFile').files[0];
     if (!file) {
@@ -82,7 +82,7 @@ async function uploadCSV() {
     }
 }
 
-// Update Data Info
+// Actualizar información de datos
 function updateDataInfo(info) {
     document.getElementById('dataInfo').style.display = 'block';
     document.getElementById('samplesCount').textContent = info.samples;
@@ -91,7 +91,7 @@ function updateDataInfo(info) {
     document.getElementById('classesCount').textContent = info.classes;
 }
 
-// Train Model
+// Entrenar modelo
 async function trainModel() {
     if (!appState.dataLoaded) {
         showError('Carga datos primero');
@@ -116,7 +116,7 @@ async function trainModel() {
         document.getElementById('trainMessage').textContent = 
             `Modelo entrenado. Accuracy en train: ${(data.training_metrics.accuracy * 100).toFixed(2)}%`;
         
-        // Cargar información del modelo
+        // Cargar info del modelo
         await loadModelInfo();
         
         // Mostrar formulario de predicción
@@ -130,7 +130,7 @@ async function trainModel() {
     }
 }
 
-// Load Model Info
+// Cargar info del modelo
 async function loadModelInfo() {
     try {
         const response = await fetch(`${API_BASE}/model-info`);
@@ -151,20 +151,20 @@ async function loadModelInfo() {
     }
 }
 
-// Display Coefficients
+// Mostrar coeficientes
 function displayCoefficients(featureNames, coefficients) {
     const display = document.getElementById('coefficientsDisplay');
     display.innerHTML = '<strong>Coeficientes del Modelo:</strong>';
     
     coefficients.forEach((coef, idx) => {
-        const feature = featureNames[idx] || `Feature ${idx}`;
+        const feature = featureNames[idx] || `Característica ${idx}`;
         const values = Array.isArray(coef) ? coef : [coef];
         
         values.forEach((val, i) => {
             const item = document.createElement('div');
             item.className = 'coeff-item';
             item.innerHTML = `
-                <span class="coeff-name">${feature} (Class ${i})</span>
+                <span class="coeff-name">${feature} (Clase ${i})</span>
                 <span class="coeff-value">${parseFloat(val).toFixed(4)}</span>
             `;
             display.appendChild(item);
@@ -172,7 +172,7 @@ function displayCoefficients(featureNames, coefficients) {
     });
 }
 
-// Evaluate Model
+// Evaluar modelo
 async function evaluateModel() {
     if (!appState.modelTrained) {
         showError('Entrena un modelo primero');
@@ -196,7 +196,7 @@ async function evaluateModel() {
     }
 }
 
-// Display Metrics
+// Mostrar métricas
 function displayMetrics(metrics) {
     document.getElementById('metricsDisplay').style.display = 'block';
     document.getElementById('accuracy').textContent = (metrics.accuracy * 100).toFixed(2) + '%';
@@ -205,7 +205,7 @@ function displayMetrics(metrics) {
     document.getElementById('f1score').textContent = (metrics.f1_score * 100).toFixed(2) + '%';
 }
 
-// Display Confusion Matrix
+// Mostrar matriz de confusión
 let confusionChart = null;
 
 function displayConfusionMatrix(matrix, classes) {
@@ -218,9 +218,9 @@ function displayConfusionMatrix(matrix, classes) {
     }
     
     const data = {
-        labels: classes.map(c => `Class ${c}`),
+        labels: classes.map(c => `Clase ${c}`),
         datasets: classes.map((c, idx) => ({
-            label: `Predicted ${c}`,
+            label: `Predicha ${c}`,
             data: matrix[idx],
             backgroundColor: `rgba(${37 + idx * 30}, ${99 + idx * 20}, 235, 0.7)`,
             borderColor: `rgba(37, 99, 235, 1)`,
@@ -258,7 +258,7 @@ function displayConfusionMatrix(matrix, classes) {
     });
 }
 
-// Show Prediction Form
+// Mostrar formulario de predicción
 function showPredictionForm() {
     const form = document.getElementById('predictionForm');
     form.style.display = 'block';
@@ -283,7 +283,7 @@ function showPredictionForm() {
     });
 }
 
-// Make Prediction
+// Hacer predicción
 async function makePrediction() {
     if (!appState.modelTrained) {
         showError('Entrena un modelo primero');
@@ -320,7 +320,7 @@ async function makePrediction() {
     }
 }
 
-// Display Prediction
+// Mostrar predicción
 function displayPrediction(prediction, probabilities, classes) {
     document.getElementById('predictionResult').style.display = 'block';
     document.getElementById('predictionClass').textContent = prediction;
@@ -344,7 +344,7 @@ function displayPrediction(prediction, probabilities, classes) {
     });
 }
 
-// Event Listeners
+// Listeners de eventos
 document.addEventListener('DOMContentLoaded', () => {
     // Dataset buttons
     document.getElementById('loadIris').addEventListener('click', () => loadDataset('iris'));

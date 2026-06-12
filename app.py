@@ -114,7 +114,7 @@ def upload_csv():
     
     try:
         if 'file' not in request.files:
-            return jsonify({'error': 'No file provided'}), 400
+            return jsonify({'error': 'No se proporcionó archivo'}), 400
         
         file = request.files['file']
         target_col = request.form.get('target_column', -1)
@@ -162,7 +162,7 @@ def train_model():
     
     try:
         if X_train is None:
-            return jsonify({'error': 'No data loaded'}), 400
+            return jsonify({'error': 'No hay datos cargados'}), 400
         
         data = request.get_json()
         max_iter = data.get('max_iter', 1000)
@@ -186,7 +186,7 @@ def train_model():
         
         return jsonify({
             'success': True,
-            'message': 'Model trained successfully',
+            'message': 'Modelo entrenado correctamente',
             'training_metrics': {
                 'accuracy': float(train_accuracy),
                 'samples': len(X_train),
@@ -203,7 +203,7 @@ def evaluate_model():
     
     try:
         if not model_trained or model is None:
-            return jsonify({'error': 'Model not trained'}), 400
+            return jsonify({'error': 'Modelo no entrenado'}), 400
         
         X_test_scaled = scaler.transform(X_test)
         y_pred = model.predict(X_test_scaled)
@@ -243,7 +243,7 @@ def predict():
     
     try:
         if not model_trained or model is None:
-            return jsonify({'error': 'Model not trained'}), 400
+            return jsonify({'error': 'Modelo no entrenado'}), 400
         
         data = request.get_json()
         input_data = np.array(data['features']).reshape(1, -1)
@@ -269,7 +269,7 @@ def get_model_info():
     
     try:
         if not model_trained or model is None:
-            return jsonify({'error': 'Model not trained'}), 400
+            return jsonify({'error': 'Modelo no entrenado'}), 400
         
         # Coeficientes del modelo
         coef = model.coef_
